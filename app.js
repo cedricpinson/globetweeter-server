@@ -1,13 +1,15 @@
 var TwitterNode = require('twitter-node').TwitterNode;
 var twit = new TwitterNode({
-	user: 'username', 
-	password: 'password',
-	locations: [ -12, 36.1, 27.3, 62.44 ]
-    });
+    user: 'statistweets', 
+    password: 'TwitterPsc80',
+    locations: [ -180, -90, 180, 90 ]
+});
+//twit.action = 'firehose';
 twit.addListener('error', function(error) {
 	console.log(error.message);
     }).addListener('tweet', function(tweet) {
-	    //console.log("@" + tweet.user.screen_name + ": " + tweet.text);
+console.log("@" + tweet.user.screen_name + ": " + tweet.text);
+//console.dir(tweet);
 	}).addListener('end', function(resp) {
 		console.log("wave goodbye... " + resp.statusCode);
 	    }).stream();
@@ -15,7 +17,7 @@ twit.addListener('error', function(error) {
 var express = require('express');
 var app = express.createServer(); 
 app.use(express.staticProvider(__dirname + '/public'));
-app.listen(3000);
+app.listen(22048, "192.168.100.231");
 
 
 var io = require('socket.io');   

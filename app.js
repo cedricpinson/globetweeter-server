@@ -4,14 +4,15 @@ var twit = new TwitterNode({
     password: 'TwitterPsc80',
     locations: [ -180, -90, 180, 90 ]
 });
-//twit.action = 'firehose';
+
 twit.addListener('error', function(error) {
 	console.log(error.message);
     }).addListener('tweet', function(tweet) {
-console.log("@" + tweet.user.screen_name + ": " + tweet.text);
+//console.log("@" + tweet.user.screen_name + ": " + tweet.text);
 //console.dir(tweet);
 	}).addListener('end', function(resp) {
 		console.log("wave goodbye... " + resp.statusCode);
+	    
 	    }).stream();
 
 var express = require('express');

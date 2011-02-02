@@ -1,7 +1,7 @@
 var TwitterNode = require('twitter-node').TwitterNode;
 var twit = new TwitterNode({
-    user: 'statistweets', 
-    password: 'TwitterPsc80',
+    user: '*', 
+    password: '*',
     locations: [ -180, -90, 180, 90 ]
 });
 
@@ -11,8 +11,8 @@ twit.addListener('error', function(error) {
 //console.log("@" + tweet.user.screen_name + ": " + tweet.text);
 //console.dir(tweet);
 	}).addListener('end', function(resp) {
-		console.log("wave goodbye... " + resp.statusCode);
-	    
+	    console.log("wave goodbye... " + resp.statusCode);
+	    process.exit();
 	    }).stream();
 
 var express = require('express');
@@ -23,7 +23,7 @@ app.listen(22048, "192.168.100.231");
 
 
 var io = require('socket.io');   
-var socket = io.listen(app, {transport:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'xhr-multipart']} );
+var socket = io.listen(app, {transport:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling']} );
 socket.on('connection', function(client){ 
 	var tweet2socket = function(twit) {
 	    client.send(twit);

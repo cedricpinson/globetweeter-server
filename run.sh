@@ -1,8 +1,7 @@
 #!/bin/bash
 #set -x
 
-export NODE_PATH=/root/twitter-node/lib
-cd /root/node-twitter-socketio/
+export NODE_PATH=twitter-node/lib
 
 while true
 do

@@ -1,25 +1,27 @@
-var Config = require('./config').settings;
-var TwitterNode = require('twitter-node').TwitterNode;
+var config = require('./config').settings;
+var Twitter = require('twitter');
 
 var receivedTweetFromLastCall = 0;
-var Stats = {};
+var stats = {};
 (function() {
     var currentNumberConnectedClients = 0;
 
-    Stats.addConnection = function() {
+    stats.addConnection = function() {
         currentNumberConnectedClients += 1;
         console.log("Current Nb Connection " + currentNumberConnectedClients);
     };
-    Stats.removeConnection = function () {
+    stats.removeConnection = function () {
         currentNumberConnectedClients -= 1;
         console.log("Current Nb Connection " + currentNumberConnectedClients);
     };
 })();
 
-var TwitterStream = new TwitterNode({
-    user: Config.user, 
-    password: Config.password,
-    locations: Config.locations
+var twitterStream = new Twitter({
+    consumer_key: config.consumer_key,
+    consumer_secret: config.consumer_secret,
+    access_token_key: config.access_token_key,
+    access_token_secret: config.access_token_secret,
+    locations: config.locations
 });
 
 
@@ -45,35 +47,53 @@ TwitterStream.addListener('error', function(error) {
     reconnect("wave goodbye... " + resp.statusCode);
 }).stream();
 
-var express = require('express');
-var app = express.createServer(); 
-//app.use(express.gzip());
-app.use(express.static(__dirname + '/public'));
-app.listen(Config.port, Config.ip);
-
-
-var io = require('socket.io');
-var socket = io.listen(app, {transport:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling']} );
-socket.on('connection', function(client){ 
-    Stats.addConnection();
-
-    var tweet2socket = function(TwitterStream) {
-	client.send(TwitterStream);
-    };
-
-    TwitterStream.addListener('tweet', tweet2socket);
-    client.on('disconnect', function () {
-	TwitterStream.removeListener('tweet', tweet2socket);
-        Stats.removeConnection();
-    });
-
-});
-
-function checkTweet() {
-    if (receivedTweetFromLastCall === 0) {
-        reconnect("no juice to press from last check");
-    }
-    receivedTweetFromLastCall = 0;
+function tweet(data) {
+    count++;
+    if ( typeof data === 'string' )
+	sys.puts(data);
+    else if ( data.text && data.user && data.user.screen_name )
+	sys.puts('"' + data.text + '" -- ' + data.user.screen_name);
+    else if ( data.message )
+	sys.puts('ERROR: ' + sys.inspect(data));
+    else
+	sys.puts(sys.inspect(data));
 }
 
-setInterval(checkTweet, 10000);
+twitterStream.stream('statuses/filter', "locations=-180,-90,180,90", function(stream){
+    stream.on('data', tweet);
+});
+
+
+if (false) {
+    var express = require('express');
+    var app = express.createServer(); 
+
+    app.use(express.static(__dirname + '/public'));
+    app.listen(Config.port, Config.ip);
+
+
+    var io = require('socket.io');
+    var socket = io.listen(app, {transport:['websocket', 'flashsocket', 'htmlfile', 'xhr-polling']} );
+    socket.on('connection', function(client){ 
+        stats.addConnection();
+
+        var tweet2socket = function(TwitterStream) {
+	    client.send(TwitterStream);
+        };
+
+        TwitterStream.addListener('tweet', tweet2socket);
+        client.on('disconnect', function () {
+	    TwitterStream.removeListener('tweet', tweet2socket);
+            stats.removeConnection();
+        });
+
+    });
+
+    function checkTweet() {
+        if (receivedTweetFromLastCall === 0) {
+            reconnect("no juice to press from last check");
+        }
+        receivedTweetFromLastCall = 0;
+    }
+}
+//setInterval(checkTweet, 10000);

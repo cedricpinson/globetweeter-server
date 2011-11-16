@@ -1,3 +1,4 @@
-inspired from this url
-http://blog.monkeyz.eu/2010/12/01/monitorer-un-flux-twitter-en-temps-reel-avec-node-js/
-
+# works with node.js 0.4.5
+npm install twitter
+npm install express
+npm install socket.io
